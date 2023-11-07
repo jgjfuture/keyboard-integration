@@ -18,7 +18,8 @@
 				"GitHub.copilot-chat",
 				"donjayamanne.githistory",
 				"yzhang.markdown-all-in-one",
-				"piotrpalarz.vscode-gitignore-generator"
+				"piotrpalarz.vscode-gitignore-generator",
+				"github.vscode-github-actions"
 			]
 		}
 	},

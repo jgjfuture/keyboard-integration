@@ -1,0 +1,21 @@
+name: Invoke Integration
+run-name: Invoke Integration 🤖
+on:
+    schedule:
+        - cron: "0 * * * *"
+jobs:
+    InvokeIntegration:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: setup-node@v3
+              with:
+                  node-version: "20"
+            - run: npm install
+            - run: npm run build
+            - run: npm start
+              env:
+                OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+                NOTION_PAGE_DATABASE_ID: ${{ secrets.NOTION_PAGE_DATABASE_ID }}
+                NOTION_TAG_DATABASE_ID: ${{ secrets.NOTION_TAG_DATABASE_ID }}
