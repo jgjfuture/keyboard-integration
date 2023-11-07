@@ -3,6 +3,11 @@ run-name: Invoke Integration 🤖
 on:
     schedule:
         - cron: "0 * * * *"
+    workflow_dispatch:
+        inputs:
+            run-name:
+                description: "Run name"
+                default: "Invoke Integration 🤖"
 jobs:
     InvokeIntegration:
         runs-on: ubuntu-latest
