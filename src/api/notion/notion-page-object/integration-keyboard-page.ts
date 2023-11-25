@@ -42,3 +42,7 @@ export type BulletedListBlock = { type: 'bulleted_list_item' } & { [key: string]
 export function isBulletedListBlock(block: LetterBlock): block is BulletedListBlock {
     return block.type === 'bulleted_list_item'
 }
+export type TodoListBlock = { type: 'to_do' } & { [key: string]: { rich_text: { plain_text: string }[] } }
+export function isTodoListBlock(block: LetterBlock): block is TodoListBlock {
+    return block.type === 'to_do'
+}

@@ -3,7 +3,7 @@ import { NotionRepository } from "../../repository/notion-repository"
 import { WrittenPage } from "../../domain/model/page"
 import { Tag, TagPagination } from "../../domain/model/tag"
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints"
-import { UnknownBlock, isBulletedListBlock, isHeaderBlock, isLetterBlock } from "./notion-page-object/integration-keyboard-page"
+import { UnknownBlock, isBulletedListBlock, isHeaderBlock, isLetterBlock, isTodoListBlock } from "./notion-page-object/integration-keyboard-page"
 
 export class NotionRepositoryImpl implements NotionRepository {
 
@@ -61,6 +61,15 @@ export class NotionRepositoryImpl implements NotionRepository {
                 if (isBulletedListBlock(untypedBlock)) {
                     const listChildren = await this.fetchPageDetail(block.id)
                     const currentItem = untypedBlock[untypedBlock.type].rich_text.map((text) => `- ${text.plain_text}`).join("\n")
+                    if (listChildren === "") {
+                        return currentItem
+                    }
+                    const listChildrenIndented = listChildren.split("\n").map((line) => `  ${line}`).join("\n")
+                    return `${currentItem}\n${listChildrenIndented}`
+                }
+                if (isTodoListBlock(untypedBlock)) {
+                    const listChildren = await this.fetchPageDetail(block.id)
+                    const currentItem = untypedBlock[untypedBlock.type].rich_text.map((text) => `- [ ] ${text.plain_text}`).join("\n")
                     if (listChildren === "") {
                         return currentItem
                     }
