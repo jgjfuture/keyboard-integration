@@ -46,25 +46,30 @@ export class NotionRepositoryImpl implements NotionRepository {
         }))
     }
 
-    fetchPageDetail: (pageId: string) => Promise<string> = async (pageId) => {
-        // fetch page of pageId which is included in database
+    fetchPageDetail: (blockId: string) => Promise<string> = async (blockId) => {
+        // fetch page of blockId which is included in database
         const pageChildBlockList = await this.client.blocks.children.list({
-            block_id: pageId,
+            block_id: blockId,
         })
 
-        const document = pageChildBlockList.results.map((block) => {
+        const document = await Promise.all(pageChildBlockList.results.map(async (block) => {
             const untypedBlock = block as unknown as UnknownBlock
             if (isLetterBlock(untypedBlock)) {
                 if (isHeaderBlock(untypedBlock)) {
                     return untypedBlock[untypedBlock.type].rich_text.map((text) => `# ${text.plain_text}`).join("\n")
                 }
                 if (isBulletedListBlock(untypedBlock)) {
-                    return untypedBlock[untypedBlock.type].rich_text.map((text) => `- ${text.plain_text}`).join("\n")
+                    const listChildren = await this.fetchPageDetail(block.id)
+                    const currentItem = untypedBlock[untypedBlock.type].rich_text.map((text) => `- ${text.plain_text}`).join("\n")
+                    if (listChildren === "") {
+                        return currentItem
+                    }
+                    const listChildrenIndented = listChildren.split("\n").map((line) => `  ${line}`).join("\n")
+                    return `${currentItem}\n${listChildrenIndented}`
                 }
             }
             return ""
-        }).join("\n")
-
+        })).then((blocks) => blocks.join("\n"))
         return document
     }
 
