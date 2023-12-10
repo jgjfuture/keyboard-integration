@@ -1,27 +1,19 @@
-import { Tag } from "../../domain/model/tag"
-import { NotionRepository } from "../../repository/notion-repository"
+import { TagModel } from "../../domain/model/page/tag/tag"
+import { TagRepository } from "../../repository/tag-repository"
 
 export class TagUsecase {
-    constructor(private readonly notionRepository: NotionRepository) {
-        this.notionRepository = notionRepository
+    constructor(private readonly tagRepository: TagRepository) {
+        this.tagRepository = tagRepository
     }
 
-    fetchTags = async (databaseId: string) => {
-        let hasMore = true
-        let nextCursor: string | null = null
-        let tags: Tag[] = []
+    fetchTags = async () => {
+        return await this.tagRepository.getAll()
+    }
 
-        while (hasMore) {
-            const response = await this.notionRepository.fetchTags(databaseId, nextCursor)
-            hasMore = response.hasMore
-            nextCursor = response.nextCursor
-            tags = [...tags, ...response.tags]
+    registerTags = async (tags: string[]) => {
+        for (const tagString of tags) {
+            const tag = TagModel.create(tagString)
+            await this.tagRepository.create(tag)
         }
-
-        return tags;
-    }
-
-    registerTags = async (databaseId: string, tags: string[]) => {
-        return await this.notionRepository.registerTags(databaseId, tags)
     }
 }

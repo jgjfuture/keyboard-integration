@@ -1,43 +1,32 @@
-import { WrittenPage } from "../../domain/model/page"
-import { NotionRepository } from "../../repository/notion-repository"
+import { PageModel } from "../../domain/model/page/page"
+import { PageRepository } from "../../repository/page-repositoty"
+
+export type PageOutput = {
+    id: string
+    title: string
+    description: string
+    integrationStatus: string
+}
+
+export type UpdatePageInput = {
+    id : string
+    title: string
+    description: string
+    tagIds: string[]
+}
 
 export class PageUsecase {
-    constructor(private readonly notionRepository: NotionRepository) {
-        this.notionRepository = notionRepository
+    constructor(private readonly pageRepository: PageRepository) {
+        this.pageRepository = pageRepository
     }
 
-    fetchDetectablePages = async (databaseId: string) => {
-        let hasMore = true
-        let nextCursor: string | null = null
-        let pages: WrittenPage[] = []
-
-        while (hasMore) {
-            const response = await this.notionRepository.fetchDetectablePages(databaseId, nextCursor)
-            hasMore = response.hasMore
-            nextCursor = response.nextCursor
-            pages = [...pages, ...response.pages]
-        }
-
-        const pagesFilled = await Promise.all(pages.map(async (page) => {
-            // TODO: fetchPageDetailはページネーションなので、次のページがあれば含めるようにする
-            const description = await this.notionRepository.fetchPageDetail(page.id)
-            return { ...page, description }
-        }))
-        return pagesFilled;
+    fetchDetectablePages = async () => {
+        const pages = await this.pageRepository.getAllWritten()
+        return pages
     }
 
-    fetchPage = async (pageId: string) => {
-        const page = await this.notionRepository.fetchPage(pageId)
-        // TODO: fetchPageDetailはページネーションなので、次のページがあれば含めるようにする
-        const description = await this.notionRepository.fetchPageDetail(page.id)
-        return { ...page, description }
-    }
-
-    postComment = async (pageId: string, text: string) => {
-        await this.notionRepository.postComment(pageId, text)
-    }
-
-    updatePage = async (pageId: string, page: WrittenPage) => {
-        await this.notionRepository.updatePage(pageId, page)
+    async update(input: UpdatePageInput) {
+        const page = new PageModel(input.id, input.title, input.description, input.tagIds, input.integrationStatus)
+        await this.pageRepository.update()
     }
 }

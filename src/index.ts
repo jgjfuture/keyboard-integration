@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { Client as NotionClient } from '@notionhq/client';
-import { NotionRepositoryImpl } from './api/notion';
-import { OpenAIRepositoryImpl } from './api/openai/';
+import { NotionRepositoryImpl } from './infra/notion';
+import { OpenAIRepositoryImpl } from './infra/openai';
 import { PageUsecase } from './usecase/page/page-usecase';
 import { GPTUsecase } from './usecase/gpt/gpt-usecase';
 import { TagUsecase } from './usecase/tag/tag-usecase';
